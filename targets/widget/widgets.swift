@@ -1,7 +1,7 @@
 // targets/widget/Widget.swift
 import WidgetKit
 import SwiftUI
-import ActivityKit // for TennisAttributes.ContentState.SetScore
+import ActivityKit 
 
 // CHANGE THIS to your App Group ID (must match App + Widget extension)
 private let APP_GROUP_ID = "group.com.your.app.shared"
