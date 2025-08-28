@@ -4,7 +4,7 @@ import WidgetKit
 import OSLog
 
 // ⚠️ Update to your real App Group (must match App target + Widget extension)
-private let APP_GROUP_ID = "group.com.your.app.shared"
+private let APP_GROUP_ID = "group.com.kiyo.tennis.shared"
 
 // Must match the `kind` in your `struct widget: Widget { let kind = "widget" }`
 private let WIDGET_KIND = "widget"

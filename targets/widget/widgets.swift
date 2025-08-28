@@ -4,7 +4,7 @@ import SwiftUI
 import ActivityKit 
 
 // CHANGE THIS to your App Group ID (must match App + Widget extension)
-private let APP_GROUP_ID = "group.com.your.app.shared"
+private let APP_GROUP_ID = "group.com.kiyo.tennis.shared"
 
 // Timeline payload (reuses your SetScore type)
 struct ScorePayload: Codable, Hashable {
