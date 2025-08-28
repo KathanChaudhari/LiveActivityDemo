@@ -1,7 +1,7 @@
 {
   "platforms": ["apple"],
   "apple": {
-    "modules": ["ActivityControllerModule"]
+    "modules": ["ActivityControllerModule",  "WidgetControllerModule"]
   }
   
 }

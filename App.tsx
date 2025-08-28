@@ -1,3 +1,4 @@
+// App.tsx
 import React, { useState, useEffect } from 'react'
 import {
   StyleSheet,
@@ -14,7 +15,10 @@ import {
   stopLiveActivity,
   isLiveActivityRunning,
   areLiveActivitiesEnabled,
+  reloadWidget,
+  setWidgetData
 } from './modules/activity-controller'
+
 
 type SetScore = {
   playerOne: string
@@ -29,13 +33,23 @@ export default function App() {
   ])
   const [running, setRunning] = useState(false)
 
+  // Push updates to Live Activity (if running) and always update the Home Screen widget
   useEffect(() => {
     if (running && isLiveActivityRunning()) {
       updateLiveActivity({ setScores: sets }).catch((e) =>
         Alert.alert('Error updating Live Activity', e.message)
       )
     }
-  }, [sets])
+
+    // ⬇️ Keep widget in sync too (doesn't require Live Activity)
+    setWidgetData({
+      playerOneName: 'Sinner',
+      playerTwoName: 'Alcaraz',
+      setScores: sets,
+    })
+      .then(() => reloadWidget())
+      .catch(() => {})
+  }, [sets, running])
 
   const onChangeScore = (
     idx: number,
@@ -55,9 +69,17 @@ export default function App() {
       await startLiveActivity({
         playerOneName: 'Sinner',
         playerTwoName: 'Alcaraz',
-        setScores: sets,   
+        setScores: sets,
       })
       setRunning(true)
+
+      // ⬇️ Also seed the widget immediately on start
+      await setWidgetData({
+        playerOneName: 'Sinner',
+        playerTwoName: 'Alcaraz',
+        setScores: sets,
+      })
+      await reloadWidget()
     } catch (e: any) {
       Alert.alert('Error starting Live Activity', e.message)
     }
