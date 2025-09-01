@@ -1,4 +1,3 @@
-// App.tsx
 import React, { useState, useEffect } from 'react'
 import {
   StyleSheet,
@@ -33,7 +32,6 @@ export default function App() {
   ])
   const [running, setRunning] = useState(false)
 
-  // Push updates to Live Activity (if running) and always update the Home Screen widget
   useEffect(() => {
     if (running && isLiveActivityRunning()) {
       updateLiveActivity({ setScores: sets }).catch((e) =>
@@ -41,7 +39,6 @@ export default function App() {
       )
     }
 
-    // ⬇️ Keep widget in sync too (doesn't require Live Activity)
     setWidgetData({
       playerOneName: 'Sinner',
       playerTwoName: 'Alcaraz',
@@ -73,7 +70,6 @@ export default function App() {
       })
       setRunning(true)
 
-      // ⬇️ Also seed the widget immediately on start
       await setWidgetData({
         playerOneName: 'Sinner',
         playerTwoName: 'Alcaraz',

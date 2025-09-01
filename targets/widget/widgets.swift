@@ -1,25 +1,20 @@
-// targets/widget/Widget.swift
 import WidgetKit
 import SwiftUI
-import ActivityKit 
+import ActivityKit
 
-// CHANGE THIS to your App Group ID (must match App + Widget extension)
 private let APP_GROUP_ID = "group.com.kiyo.tennis.shared"
 
-// Timeline payload (reuses your SetScore type)
 struct ScorePayload: Codable, Hashable {
   let playerOneName: String
   let playerTwoName: String
   let setScores: [TennisAttributes.ContentState.SetScore]
 }
 
-// Timeline entry
 struct SimpleEntry: TimelineEntry {
   let date: Date
   let payload: ScorePayload
 }
 
-// Provider reading from App Group user defaults
 struct Provider: AppIntentTimelineProvider {
   func placeholder(in context: Context) -> SimpleEntry {
     SimpleEntry(date: .now, payload: .placeholder)
@@ -68,88 +63,57 @@ struct ScoreWidgetEntryView: View {
   }
 }
 
-// SMALL: tennis ball icon + last set score
 struct SmallScoreView: View {
   let entry: SimpleEntry
 
   var body: some View {
-    let lastText: String = {
-      if let last = entry.payload.setScores.last {
-        return "\(last.playerOne)–\(last.playerTwo)"
-      } else { return "0–0" }
-    }()
+    let last = entry.payload.setScores.last ?? .init(playerOne: "0", playerTwo: "0")
 
-    VStack(spacing: 6) {
-      Image(systemName: "tennisball.fill")
-        .resizable()
-        .scaledToFit()
-        .frame(width: 28, height: 28)
-        .foregroundColor(.primary)
+    HStack(alignment: .center, spacing: 12) {
+      // Left: names (vertical) with "vs" between
+      VStack(alignment: .leading, spacing: 2) {
+        Text(entry.payload.playerOneName)
+          .font(.caption)
+          .lineLimit(1)
+          .truncationMode(.tail)
+        Text("vs")
+          .font(.caption2)
+          .foregroundColor(.secondary)
+        Text(entry.payload.playerTwoName)
+          .font(.caption)
+          .lineLimit(1)
+          .truncationMode(.tail)
+      }
 
-      Text(lastText)
-        .font(.headline)
-        .monospacedDigit()
-        .bold()
+      Spacer(minLength: 0)
+
+      // Right: scores (vertical) with "-" between
+      VStack(alignment: .trailing, spacing: 2) {
+        Text(last.playerOne)
+          .font(.headline)
+          .monospacedDigit()
+          .bold()
+        Text(" ")
+          .font(.caption2)
+          .foregroundColor(.secondary)
+        Text(last.playerTwo)
+          .font(.headline)
+          .monospacedDigit()
+          .bold()
+      }
     }
     .padding()
   }
 }
 
-// MEDIUM: vertical list — Set 1 score, Set 2 score, Set 3 score
+
 struct MediumScoreView: View {
   let entry: SimpleEntry
 
   var body: some View {
     let sets = Array(entry.payload.setScores.prefix(3))
+
     VStack(alignment: .leading, spacing: 8) {
-      ForEach(Array(sets.enumerated()), id: \.offset) { idx, s in
-        HStack {
-          Text("Set \(idx + 1)")
-            .font(.caption2)
-            .foregroundColor(.secondary)
-          Spacer(minLength: 8)
-          Text("\(s.playerOne)–\(s.playerTwo)")
-            .font(.headline)
-            .monospacedDigit()
-            .bold()
-        }
-      }
-    }
-    .padding()
-  }
-}
-
-// LARGE: icon, then three set scores horizontally, then player names
-struct LargeScoreView: View {
-  let entry: SimpleEntry
-
-  var body: some View {
-    let sets = Array(entry.payload.setScores.prefix(3))
-    VStack(alignment: .leading, spacing: 12) {
-      // Icon
-      Image(systemName: "tennisball.fill")
-        .resizable()
-        .scaledToFit()
-        .frame(width: 34, height: 34)
-        .foregroundColor(.primary)
-
-      // Three sets horizontally
-      HStack(spacing: 16) {
-        ForEach(Array(sets.enumerated()), id: \.offset) { idx, s in
-          VStack(alignment: .leading, spacing: 2) {
-            Text("Set \(idx + 1)")
-              .font(.caption2)
-              .foregroundColor(.secondary)
-            Text("\(s.playerOne)–\(s.playerTwo)")
-              .font(.title3)
-              .monospacedDigit()
-              .bold()
-          }
-        }
-        Spacer(minLength: 0)
-      }
-
-      // Player names
       HStack(spacing: 6) {
         Text(entry.payload.playerOneName)
           .font(.caption)
@@ -161,21 +125,106 @@ struct LargeScoreView: View {
           .font(.caption)
           .lineLimit(1)
       }
+      .frame(maxWidth: .infinity, alignment: .center)
+
+      // Row: icon in-line with scores
+      HStack(spacing: 12) {
+        Image(systemName: "tennisball.fill")
+          .resizable()
+          .scaledToFit()
+          .frame(width: 26, height: 26)
+          .foregroundColor(.primary)
+
+        // Three set “cards” spread across width
+        HStack(spacing: 0) {
+          Spacer(minLength: 0)
+          ForEach(Array(sets.enumerated()), id: \.offset) { idx, s in
+            VStack(spacing: 2) {
+              Text("Set \(idx + 1)")
+                .font(.caption2)
+                .foregroundColor(.secondary)
+              Text("\(s.playerOne)–\(s.playerTwo)")
+                .font(.headline)
+                .monospacedDigit()
+                .bold()
+            }
+            if idx < sets.count - 1 { Spacer(minLength: 0) }
+          }
+          Spacer(minLength: 0)
+        }
+      }
     }
     .padding()
   }
 }
 
-// MARK: - Widget (name must match your WidgetBundle's `widget()`)
+
+
+struct LargeScoreView: View {
+  let entry: SimpleEntry
+
+  var body: some View {
+    let sets = Array(entry.payload.setScores.prefix(3))
+
+    HStack(alignment: .top, spacing: 12) {
+      // Icon stays top-left
+      Image(systemName: "tennisball.fill")
+        .resizable()
+        .scaledToFit()
+        .frame(width: 40, height: 40)
+        .foregroundColor(.primary)
+
+      // Everything else right-justified
+      Spacer(minLength: 0)
+
+      VStack(alignment: .trailing, spacing: 10) {
+        // Player names line (right-aligned)
+        HStack(spacing: 6) {
+          Text(entry.payload.playerOneName)
+            .font(.headline)
+            .lineLimit(1)
+          Text("vs")
+            .font(.caption2)
+            .foregroundColor(.secondary)
+          Text(entry.payload.playerTwoName)
+            .font(.headline)
+            .lineLimit(1)
+        }
+        .frame(maxWidth: .infinity, alignment: .trailing)
+
+        // Per-set rows (right-aligned)
+        VStack(alignment: .trailing, spacing: 6) {
+          ForEach(Array(sets.enumerated()), id: \.offset) { idx, s in
+            HStack(spacing: 8) {
+              Text("Set \(idx + 1):")
+                .font(.caption2)
+                .foregroundColor(.secondary)
+              Text("\(s.playerOne)–\(s.playerTwo)")
+                .font(.body)
+                .monospacedDigit()
+                .bold()
+            }
+            .frame(maxWidth: .infinity, alignment: .trailing)
+          }
+        }
+      }
+      .frame(maxWidth: .infinity, alignment: .trailing)
+    }
+    .padding()
+  }
+}
+
+
+
 struct widget: Widget {
-  let kind: String = "widget" // keep this string stable
+  let kind: String = "widget" 
 
   var body: some WidgetConfiguration {
     AppIntentConfiguration(kind: kind,
                            intent: ConfigurationAppIntent.self,
                            provider: Provider()) { entry in
       ScoreWidgetEntryView(entry: entry)
-        .containerBackground(.clear, for: .widget) // iOS 17+
+        .containerBackground(.clear, for: .widget) 
     }
     .configurationDisplayName("Tennis Score")
     .description("Shows the latest sets and scores.")
@@ -183,7 +232,6 @@ struct widget: Widget {
   }
 }
 
-// MARK: - Placeholder payload for previews/fallback
 extension ScorePayload {
   static let placeholder = ScorePayload(
     playerOneName: "Player A",
@@ -196,7 +244,6 @@ extension ScorePayload {
   )
 }
 
-// MARK: - Previews
 #Preview(as: .systemSmall) {
   widget()
 } timeline: {
