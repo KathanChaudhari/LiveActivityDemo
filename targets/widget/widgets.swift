@@ -43,7 +43,6 @@ struct Provider: AppIntentTimelineProvider {
   }
 }
 
-// MARK: - Views
 
 struct ScoreWidgetEntryView: View {
   @Environment(\.widgetFamily) var family
@@ -70,7 +69,6 @@ struct SmallScoreView: View {
     let last = entry.payload.setScores.last ?? .init(playerOne: "0", playerTwo: "0")
 
     HStack(alignment: .center, spacing: 12) {
-      // Left: names (vertical) with "vs" between
       VStack(alignment: .leading, spacing: 2) {
         Text(entry.payload.playerOneName)
           .font(.caption)
@@ -87,7 +85,6 @@ struct SmallScoreView: View {
 
       Spacer(minLength: 0)
 
-      // Right: scores (vertical) with "-" between
       VStack(alignment: .trailing, spacing: 2) {
         Text(last.playerOne)
           .font(.headline)
@@ -127,7 +124,6 @@ struct MediumScoreView: View {
       }
       .frame(maxWidth: .infinity, alignment: .center)
 
-      // Row: icon in-line with scores
       HStack(spacing: 12) {
         Image(systemName: "tennisball.fill")
           .resizable()
@@ -135,7 +131,6 @@ struct MediumScoreView: View {
           .frame(width: 26, height: 26)
           .foregroundColor(.primary)
 
-        // Three set “cards” spread across width
         HStack(spacing: 0) {
           Spacer(minLength: 0)
           ForEach(Array(sets.enumerated()), id: \.offset) { idx, s in
@@ -167,18 +162,15 @@ struct LargeScoreView: View {
     let sets = Array(entry.payload.setScores.prefix(3))
 
     HStack(alignment: .top, spacing: 12) {
-      // Icon stays top-left
       Image(systemName: "tennisball.fill")
         .resizable()
         .scaledToFit()
         .frame(width: 40, height: 40)
         .foregroundColor(.primary)
 
-      // Everything else right-justified
       Spacer(minLength: 0)
 
       VStack(alignment: .trailing, spacing: 10) {
-        // Player names line (right-aligned)
         HStack(spacing: 6) {
           Text(entry.payload.playerOneName)
             .font(.headline)
@@ -192,7 +184,6 @@ struct LargeScoreView: View {
         }
         .frame(maxWidth: .infinity, alignment: .trailing)
 
-        // Per-set rows (right-aligned)
         VStack(alignment: .trailing, spacing: 6) {
           ForEach(Array(sets.enumerated()), id: \.offset) { idx, s in
             HStack(spacing: 8) {
